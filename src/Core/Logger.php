@@ -8,7 +8,7 @@ use Pair\Helpers\Mailer;
 use Pair\Helpers\Utilities;
 use Pair\Models\ErrorLog;
 use Pair\Services\AmazonSes;
-use Pair\Services\BugSnag;
+use Pair\Services\InsightHub;
 use Pair\Services\SendMail;
 use Pair\Services\SmtpMailer;
 use Pair\Services\TelegramNotifier;
@@ -204,8 +204,8 @@ class Logger {
 			\Sentry\captureLastError();
 		}
 
-		// send the error to BugSnag if enabled
-		BugSnag::handle($errstr, $errno);
+		// send the error to Insight Hub if enabled
+		InsightHub::handle($errstr, $errno);
 
 	}
 
@@ -237,11 +237,13 @@ class Logger {
 			\Sentry\captureException($e);
 		}
 
-		// send the error to BugSnag if enabled
-		BugSnag::exception($e);
+		// send the error to Insight Hub if enabled
+		InsightHub::exception($e);
 
 		// log the error internally
-		self::error($e->getMessage(), self::ERROR);
+		$trace = $e->getTrace()[0];
+		$fullMsg = get_class($e) . ': ' . $e->getMessage() . ' in ' . $trace['file'] . ' line ' . $trace['line'];
+		self::error($fullMsg, self::ERROR);
 
 	}
 
@@ -259,7 +261,7 @@ class Logger {
 	}
 
 	/**
-	 * Register an error in the database and send notifications.
+	 * Register an error in the database and send telegram and e-mail notifications.
 	 *
 	 * @param string	Description of the error.
 	 * @param int		PSR-3 log level number equivalent.
@@ -271,7 +273,7 @@ class Logger {
 		}
 
 		// register error in database
-		self::snapshot($description, $level);
+		$this->storeError($description, $level);
 
 		$levels = [
 			self::EMERGENCY	=> 'Emergency',
@@ -455,8 +457,8 @@ class Logger {
 			\Sentry\captureLastError();
 		}
 
-		// send the error to BugSnag if enabled
-		BugSnag::error(BugSnag::PHP_ERRORS[$error['type']] ?? 'FatalError', $error['message'] ?? 'Unknown error');
+		// send the error to Insight Hub if enabled
+		InsightHub::error(InsightHub::PHP_ERRORS[$error['type']] ?? 'FatalError', $error['message'] ?? 'Unknown error');
 
 	}
 
@@ -466,11 +468,9 @@ class Logger {
 	 * @param	string	Description of the snapshot moment.
 	 * @param	int		Optional PSR-3 log level number equivalent, default is 8 (DEBUG).
 	 */
-	public static function snapshot(string $description, ?int $level=NULL): void {
+	private function storeError(string $description, ?int $level=NULL): void {
 
-		$self = self::getInstance();
-
-		if (!$self->enabled) {
+		if (!$this->enabled) {
 			return;
 		}
 

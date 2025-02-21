@@ -278,7 +278,7 @@ Example of the old code and the new code in template file:
 
 #### Logger
 
-The new Logger class respects the `PSR-3` (Logger Interface of PHP Standard Recommendation) log levels. The default level for snapshots taken without indications is `DEBUG`. The levels, from most critical to least serious, are:
+The new Logger class respects the `PSR-3` (Logger Interface of PHP Standard Recommendation) log levels. The default level for error stored without indications is `DEBUG`. The levels, from most critical to least serious, are:
 
 1. EMERGENCY
 2. ALERT
@@ -294,6 +294,6 @@ The Logger class now takes care of logging status information when errors occur 
 ```php
 <?php
 
-Logger::snapshot($msg, Logger::ERROR);  // changed from ErrorLog::keepSnapshot($msg)
+Logger::error($msg, Logger::ERROR);  // changed from ErrorLog::keepSnapshot($msg)
 ```
 Via `.env` configuration file, or via code calls, you can set up automatic notifications to one or more `Telegram` recipients, for instant notifications, or e-mail (supported `SMTP`, `sendmail`, `AmazonSES`) for asynchronous notifications.

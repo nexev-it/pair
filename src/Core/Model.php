@@ -78,15 +78,11 @@ abstract class Model {
 	 *
 	 * @param	string	$name
 	 * @param	array	$arguments
+	 * @throws	\Exception
 	 */
 	public function __call(string $name, array $arguments): void {
 
-		if ('development' == Application::getEnvironment()) {
-
-			$backtrace = debug_backtrace();
-			$this->logError('Method '. get_called_class() . $backtrace[0]['type'] . $name .'(), which doesn’t exist, has been called by '. $backtrace[0]['file'] .' on line '. $backtrace[0]['line']);
-
-		}
+		throw new \Exception('Method '. get_called_class() . '->' . $name .'(), which doesn’t exist, has been called', ErrorCodes::METHOD_NOT_FOUND);
 
 	}
 

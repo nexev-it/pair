@@ -51,8 +51,6 @@ abstract class Controller {
 
 	/**
 	 * Inizialize name, module path, translator and view.
-	 * 
-	 * @throws	\Exception
 	 */
 	final public function __construct() {
 
@@ -75,11 +73,7 @@ abstract class Controller {
 		// sets same view as the controller action
 		$this->view = $this->router->action ? $this->router->action : 'default';
 
-		try {
-			$this->init();
-		} catch (\Exception $e) {
-			throw new \Exception(Translator::do('INITIALIZING_ERROR', [get_class($e), $class]), ErrorCodes::CONTROLLER_INIT_FAILED, $e);
-		}
+		$this->init();
 
 		// if a model is not specified, load the default one
 		if (!isset($this->model) or is_null($this->model)) {
@@ -137,10 +131,10 @@ abstract class Controller {
 	}
 
 	/**
-	 * Include the file for View formatting. Display an error with a toast notification and
+	 * Include the file for View formatting. Display an error with a notification and
 	 * redirect to default view as fallback in case of view not found for non-ajax requests.
 	 */
-	public function display(): void {
+	public function renderView(): void {
 
 		$view = $this->getView();
 

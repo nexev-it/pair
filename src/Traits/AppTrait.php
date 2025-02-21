@@ -10,7 +10,7 @@ trait AppTrait {
 
 	/**
 	 * Get a state variable from cookie.
-	 * 
+	 *
 	 * @param	string	Name of the variable.
 	 */
 	public function getPersistentState(string $key): mixed {
@@ -20,8 +20,22 @@ trait AppTrait {
 	}
 
 	/**
+	 * Set esternal script file load with optional attributes.
+	 *
+	 * @param	string	Path to script, absolute or relative with no trailing slash.
+	 * @param	bool	Defer attribute (default FALSE).
+	 * @param	bool	Async attribute (default FALSE).
+	 * @param	array	Optional attribute list (type, integrity, crossorigin, charset).
+	 */
+	public function loadScript(string $src, bool $defer = FALSE, bool $async = FALSE, array $attribs=[]): void {
+
+		Application::getInstance()->loadScript($src, $defer, $async, $attribs);
+
+	}
+
+	/**
 	 * Add an alert modal to the page and return the object for further customization.
-	 * 
+	 *
 	 * @param	string	Title of the modal.
 	 * @param	string	Message of the modal.
 	 * @param	string	Icon for the modal.
@@ -34,7 +48,7 @@ trait AppTrait {
 
 	/**
 	 * Add a persistent alert modal to the page.
-	 * 
+	 *
 	 * @param	string	Title of the modal.
 	 * @param	string	Message of the modal.
 	 * @param	string	Type of the modal.
@@ -59,6 +73,15 @@ trait AppTrait {
 	}
 
 	/**
+	 * Set the web page HTML title tag.
+	 */
+	public function setPageTitle(string $title): void {
+
+		Application::getInstance()->setPageTitle($title);
+
+	}
+
+	/**
 	 * Store variables of any type in a cookie for next retrievement. Existent variables with
 	 * same name will be overwritten.
 	 */
@@ -79,7 +102,7 @@ trait AppTrait {
 
     /**
      * Appends a toast notification message to queue.
-	 * 
+	 *
 	 * @param	string	Toast’s title, bold.
 	 * @param	string	Error message.
 	 * @param	string	Type of the toast (info|success|warning|error|question|progress), default info.
@@ -105,7 +128,7 @@ trait AppTrait {
 
 	/**
 	 * Proxy function to append an error toast notification to queue and redirect.
-	 * 
+	 *
 	 * @param	string	Toast’s title, bold.
 	 * @param	string	Error message.
 	 * @param	string	Redirect URL, optional.
@@ -118,7 +141,7 @@ trait AppTrait {
 
 	/**
 	 * Proxy function to append a toast notification to queue and redirect.
-	 * 
+	 *
 	 * @param	string	Toast’s title, bold.
 	 * @param	string	Message.
 	 * @param	string	Redirect URL, optional.

@@ -269,4 +269,9 @@ class ErrorCodes {
 	 */
 	const EMAIL_SEND_ERROR = 1053;
 
+	/**
+	 * Form control not found.
+	 */
+	const FORM_CONTROL_NOT_FOUND = 1054;
+
 }

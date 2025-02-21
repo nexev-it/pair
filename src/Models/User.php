@@ -116,28 +116,32 @@ class User extends ActiveRecord {
 	const SHARED_CACHE_PROPERTIES = ['groupId', 'localeId'];
 
 	/**
-	 * Will returns property’s value if set. Throw an exception and returns NULL if not set.
-	 * Name will returns firstName + secondName.
+	 * Will returns property’s value if set. Throw an exception if not set.
+	 * Pass fullName to return name + surname.
 	 *
 	 * @param	string	Property’s name.
 	 */
 	public function __get(string $name): mixed {
 
-		switch ($name) {
+		if (isset($this->id) and in_array($name, ['fullName', 'groupName', 'tzName', 'tzOffset'])) {
 
-			case 'fullName':
-				return $this->name . ' ' . $this->surname;
+			switch ($name) {
 
-			case 'groupName':
-				return $this->getGroup()->name;
+				case 'fullName':
+					return $this->name . ' ' . $this->surname;
 
-			case 'tzName':
-				$this->loadTimezone();
-				return $this->tzName;
+				case 'groupName':
+					return $this->getGroup()->name;
 
-			case 'tzOffset':
-				$this->loadTimezone();
-				return $this->tzOffset;
+				case 'tzName':
+					$this->loadTimezone();
+					return $this->tzName;
+
+				case 'tzOffset':
+					$this->loadTimezone();
+					return $this->tzOffset;
+
+			}
 
 		}
 

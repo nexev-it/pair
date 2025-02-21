@@ -8,9 +8,9 @@ use Pair\Core\Config;
 use \Bugsnag\Client;
 
 /**
- * This class provides a simple interface to BugSnag.
+ * This class provides a simple interface to Insight Hub.
  */
-class BugSnag {
+class InsightHub {
 
 	const PHP_ERRORS = [
         E_ALL => 'E_ALL',
@@ -32,7 +32,7 @@ class BugSnag {
     ];
 
 	/**
-	 * Send an error message to BugSnag if the API key is set.
+	 * Send an error message to Insight Hub if the API key is set.
 	 *
 	 * @param string The name of the error, a short (1 word) string.
 	 * @param string The error message.
@@ -44,14 +44,14 @@ class BugSnag {
 	}
 
 	/**
-	 * Send an exception to BugSnag if the API key is set.
+	 * Send an exception to Insight Hub if the API key is set.
 	 *
 	 * @param \Throwable $exception The exception to send.
 	 * @param string $severity The severity of the exception.
 	 */
 	public static function exception(\Throwable $exception, string $severity = 'error'): void {
 
-		// send the exception to BugSnag
+		// send the exception to Insight Hub
 		$client = self::getClient();
 
 		if (!$client) {
@@ -65,15 +65,15 @@ class BugSnag {
 	}
 
 	/**
-	 * Setup the BugSnag client and return it.
+	 * Setup the Insight Hub client and return it.
 	 */
 	private static function getClient(): ?Client {
 
-		if (!Config::get('BUGSNAG_API_KEY')) {
+		if (!Config::get('INSIGHT_HUB_API_KEY')) {
 			return NULL;
 		}
 
-		$bugsnag = Client::make(Config::get('BUGSNAG_API_KEY'));
+		$bugsnag = Client::make(Config::get('INSIGHT_HUB_API_KEY'));
 
 		$bugsnag->setReleaseStage(Application::getEnvironment());
 		$bugsnag->setAppType('web');
@@ -121,7 +121,7 @@ class BugSnag {
 	}
 
 	/**
-	 * Handle a PHP error and send it to BugSnag if the API key is set.
+	 * Handle a PHP error and send it to Insight Hub if the API key is set.
 	 *
 	 * @param string The error message.
 	 * @param int The PHP error type.
@@ -137,7 +137,7 @@ class BugSnag {
 	}
 
 	/**
-	 * Send an info message to BugSnag if the API key is set.
+	 * Send an info message to Insight Hub if the API key is set.
 	 *
 	 * @param string The name of the error, a short (1 word) string.
 	 * @param string The error message.
@@ -149,7 +149,7 @@ class BugSnag {
 	}
 
 	/**
-	 * Send an error message to BugSnag with severity based on the parameter passed.
+	 * Send an error message to Insight Hub with severity based on the parameter passed.
 	 *
 	 * @param string The name of the error, a short (1 word) string.
 	 * @param string The error message.
@@ -170,7 +170,7 @@ class BugSnag {
 	}
 
 	/**
-	 * Send a warning message to BugSnag if the API key is set.
+	 * Send a warning message to Insight Hub if the API key is set.
 	 *
 	 * @param string The name of the error, a short (1 word) string.
 	 * @param string The error message.

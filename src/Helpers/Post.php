@@ -76,6 +76,7 @@ class Post {
 
 		switch ($type) {
 
+			default:
 			case 'string':
 			case 'text':
 				$val = (string)$val;
@@ -133,6 +134,10 @@ class Post {
 				}
 				break;
 
+			case 'array':
+				$val = (array)$val;
+				break;
+
 		}
 
 		return $val;
@@ -175,8 +180,6 @@ class Post {
 	 */
 	public static function get(string $name, string $type='string', mixed $default=NULL): mixed {
 
-		$val = "";
-
 		switch ($_SERVER['REQUEST_METHOD']) {
 
 			case 'POST':
@@ -197,31 +200,12 @@ class Post {
 		// spaces are converted by PHP to underscores
 		$name = str_replace(' ', '_', $name);
 
-		// seeking a possible name
-		if (array_key_exists($name, $request)) {
-
-			// evaluates whether it’s an array
-			if (is_array($request[$name])) {
-
-				$values = [];
-
-				foreach ($request[$name] as $val) {
-					$values[] = self::castTo($val, $type);
-				}
-
-				return $values;
-
-			} else {
-
-				return self::castTo($request[$name], $type);
-
-			}
-
-		} else {
-
+		// return default value if not found
+		if (!array_key_exists($name, $request)) {
 			return self::castTo($default, $type);
-
 		}
+
+		return self::castTo($request[$name], $type);
 
 	}
 

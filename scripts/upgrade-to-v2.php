@@ -187,9 +187,9 @@ foreach ($files as $file) {
 
 	// Template
 	if (0 === strpos($file->getPathname(), APP_ROOT . '/templates/')) {
-		$content = str_replace('Template::', 'Pair\Models\Template::', $content);
-		$content = str_replace('$this->pageStyles', '$app->printStyles()', $content);
-		$content = str_replace('$this->pageScripts', '$app->printScripts()', $content);
+		$content = str_replace('Pair\Template::', 'Pair\Models\Template::', $content);
+		$content = str_replace('print $this->pageStyles', '$app->printStyles()', $content);
+		$content = str_replace('print $this->pageScripts', '$app->printScripts()', $content);
 		$content = str_replace('<?php print $this->pageContent ?>', '{{content}}', $content);
 		$content = str_replace('<?php print $this->pageTitle ?>', '{{title}}', $content);
 		$content = str_replace('<?php print $this->log ?>', '{{logBar}}', $content);
@@ -200,11 +200,17 @@ foreach ($files as $file) {
 	$content = str_replace('protected function init() {', 'protected function init(): void {', $content);
 
 	// View
+	if (0 === strpos($file->getFilename(), 'view') and '.php' === substr($file->getFilename(), -4)) {
+		$content = str_replace('public function render() {', 'public function render(): void {', $content);
+		$content = preg_replace('|\$this->app->pageTitle[ \t]*=[ \t]*([^;]+);|im', '$this->setPageTitle($1);', $content);
+	}
+	
+	// Layout
 	$content = str_replace('->printSortableColumn(', '->sortable(', $content);
-	$content = str_replace('public function render() {', 'public function render(): void {', $content);
 
-	// LogBar
+	// Logger
 	$content = str_replace('Logger::event(', 'Logger::notice(', $content);
+	$content = str_replace('ErrorLog::keepSnapshot(', 'Logger::error(', $content);
 
 	// Form controls
 	$content = preg_replace('/->addInput\([\'"]([^\'"]+)[\'"]\)->setType\([\'"]bool[\'"]\)/', '->checkbox(\'$1\')', $content);

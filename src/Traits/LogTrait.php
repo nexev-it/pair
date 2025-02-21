@@ -6,38 +6,37 @@ use Pair\Helpers\LogBar;
 
 trait LogTrait {
 
-    /**
-     * Disable the collection of log events.
-     */
-    public function disableLog(): void {
+	/**
+	 * Disable the collection of log events.
+	 */
+	public function disableLogBar(): void {
 
-        $logBar = LogBar::getInstance();
-        $logBar->disable();
+		LogBar::getInstance()->disable();
 
-    }
+	}
 
-    /**
-     * Add an event to the log bar.
-     */
-    public function log(string $description, string $type = 'notice', string $subtext = ''): void {
+	/**
+	 * Add an event to the log bar.
+	 */
+	public function log(string $description, string $type = 'notice', string $subtext = ''): void {
 
-        LogBar::event($description, $type, $subtext);
+		LogBar::event($description, $type, $subtext);
 
-    }
+	}
 
-    /**
-     * Add an error to the log bar.
-     */
-    public function logError(string $description, string $subtext = ''): void {
+	/**
+	 * Add an error to the log bar.
+	 */
+	public function logError(string $description, string $subtext = ''): void {
 
-        LogBar::event($description, 'error', $subtext);
+		LogBar::event($description, 'error', $subtext);
 
-    }
+	}
 
-    public function logWarning(string $description, string $subtext = ''): void {
+	public function logWarning(string $description, string $subtext = ''): void {
 
-        LogBar::event($description, 'warning', $subtext);
+		LogBar::event($description, 'warning', $subtext);
 
-    }
+	}
 
 }

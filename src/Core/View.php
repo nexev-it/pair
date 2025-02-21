@@ -5,6 +5,7 @@ namespace Pair\Core;
 use Pair\Core\Logger;
 use Pair\Exceptions\CriticalException;
 use Pair\Exceptions\ErrorCodes;
+use Pair\Exceptions\PairException;
 use Pair\Helpers\Options;
 use Pair\Helpers\Translator;
 use Pair\Helpers\Utilities;
@@ -167,37 +168,12 @@ abstract class View {
 
 		} catch (\Exception $e) {
 
+			PairException::frontEnd(Translator::do('AN_ERROR_OCCURRED'));
+
 			if ('default' != $this->layout) {
 				$this->redirect();
 			} else {
 				$this->app->redirectToUserDefault();
-			}
-		}
-
-		// look for css files
-		if (is_dir($this->modulePath . '/css')) {
-
-			// get all folder files
-			$files = Utilities::getDirectoryFilenames($this->modulePath . '/css');
-
-			// load files as script and add timestamp to ignore browser caching
-			foreach ($files as $file) {
-				$subPath = '/css/' . $file;
-				$this->app->loadCss($this->moduleUrl . $subPath . '?' . filemtime($this->modulePath . $subPath));
-			}
-
-		}
-
-		// look for javascript files
-		if (is_dir($this->modulePath . '/js')) {
-
-			// get all folder files
-			$files = Utilities::getDirectoryFilenames($this->modulePath . '/js');
-
-			// load files as script and add timestamp to ignore browser caching
-			foreach ($files as $file) {
-				$subPath = '/js/' . $file;
-				$this->app->loadScript($this->moduleUrl . $subPath . '?' . filemtime($this->modulePath . $subPath));
 			}
 
 		}

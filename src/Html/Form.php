@@ -2,7 +2,8 @@
 
 namespace Pair\Html;
 
-use Pair\Core\Logger;
+use Pair\Exceptions\AppException;
+use Pair\Exceptions\ErrorCodes;
 use Pair\Html\FormControl;
 use Pair\Html\FormControls\Address;
 use Pair\Html\FormControls\Button;
@@ -241,12 +242,10 @@ class Form {
 			$controlName = substr($controlName, 0, -2);
 		}
 
-		if ($this->controlExists($controlName)) {
-			return $this->controls[$controlName];
-		} else {
-			Logger::error('Field control “' . $controlName . '” has not been defined in Form object');
-			return NULL;
+		if (!$this->controlExists($controlName)) {
+			throw new AppException('Field control “' . $controlName . '” has not been defined in Form object', ErrorCodes::FORM_CONTROL_NOT_FOUND);
 		}
+		return $this->controls[$controlName];
 
 	}
 

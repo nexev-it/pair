@@ -9,12 +9,13 @@ use Pair\Helpers\Translator;
 use Pair\Helpers\Utilities;
 
 /**
- * Custom exception for handling errors when writing an ActiveRecord object to the database.
+ * Custom exception for handling errors in the Pair Framework.
  */
 class PairException extends \Exception {
 
 	/**
-	 * Forwards the error message to the logger and, in case of critical errors, throws a CriticalException.
+	 * Tracks the error message in the LogBar, takes a system snapshot and sends e-mail/telegram
+	 * notifications. In case of critical errors, throws a CriticalException.
 	 *
 	 * @param string The error message.
 	 * @param int The error code.

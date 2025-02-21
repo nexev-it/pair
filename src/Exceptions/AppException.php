@@ -17,12 +17,12 @@ class AppException extends PairException {
 	 */
 	public function __construct(string $message, int $code = 0, ?\Throwable $previous = NULL) {
 
-		// track the error message
-		parent::__construct($message, $code, $previous);
-
 		// notify the user
 		self::frontEnd($message);
 		
+		// track the error message
+		parent::__construct($message, $code, $previous);
+
 	}
 
 }

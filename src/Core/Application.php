@@ -2,9 +2,10 @@
 
 namespace Pair\Core;
 
+use Pair\Exceptions\AppException;
 use Pair\Exceptions\CriticalException;
 use Pair\Exceptions\ErrorCodes;
-use Pair\Exceptions\AppException;
+use Pair\Exceptions\PairException;
 use Pair\Helpers\LogBar;
 use Pair\Helpers\Options;
 use Pair\Helpers\Translator;
@@ -172,7 +173,7 @@ class Application {
 		}
 
 		// default page title, maybe overwritten
-		$this->pageTitle = Config::get('PRODUCT_NAME');
+		$this->setPageTitle(Config::get('PRODUCT_NAME'));
 
 		// raw calls will jump templates inclusion, so turn-out output buffer
 		if (!$router->isRaw()) {
@@ -601,7 +602,7 @@ class Application {
 	 * @param	bool	Async attribute (default FALSE).
 	 * @param	array	Optional attribute list (type, integrity, crossorigin, charset).
 	 */
-	public function loadScript(string $src, bool $defer = FALSE, bool $async = FALSE, array $attribs=[]) {
+	public function loadScript(string $src, bool $defer = FALSE, bool $async = FALSE, array $attribs=[]): void {
 
 		// the script object
 		$script = new \stdClass();
@@ -812,10 +813,10 @@ class Application {
 
 		}
 
-		// add BugSnag script for error tracking and performance monitoring
-		if (Config::get('BUGSNAG_API_KEY') and Config::get('BUGSNAG_PERFORMANCE')) {
+		// add Insight Hub script for error tracking and performance monitoring
+		if (Config::get('INSIGHT_HUB_API_KEY') and Config::get('INSIGHT_HUB_PERFORMANCE')) {
 			$pageScripts .= '<script src="https://cdn.jsdelivr.net/npm/bugsnag-js" crossorigin="anonymous"></script>' . "\n";
-			$pageScripts .= '<script type="module">import BugsnagPerformance from "//d2wy8f7a9ursnm.cloudfront.net/v1/bugsnag-performance.min.js";BugsnagPerformance.start({apiKey:"' . Config::get('BUGSNAG_API_KEY') .'"})</script>' . "\n";
+			$pageScripts .= '<script type="module">import BugsnagPerformance from "//d2wy8f7a9ursnm.cloudfront.net/v1/bugsnag-performance.min.js";BugsnagPerformance.start({apiKey:"' . Config::get('INSIGHT_HUB_API_KEY') .'"})</script>' . "\n";
 		}
 
 		// collect plain text scripts
@@ -1152,6 +1153,15 @@ class Application {
 	}
 
 	/**
+	 * Set the web page HTML title tag.
+	 */
+	public function setPageTitle(string $title): void {
+
+		$this->pageTitle = $title;
+
+	}
+
+	/**
 	 * Store variables of any type in a cookie for next retrievement. Existent variables with
 	 * same name will be overwritten.
 	 */
@@ -1196,7 +1206,7 @@ class Application {
 
 			$this->toastError(Translator::do('ERROR'), Translator::do('RESOURCE_NOT_FOUND', $router->url));
 			$this->style = '404';
-			$this->pageTitle = 'HTTP 404 error';
+			$this->setPageTitle('HTTP 404 error');
 			http_response_code(404);
 
 		} else {
@@ -1225,14 +1235,24 @@ class Application {
 
 			}
 
-			$controller = new $controllerName();
+			if (!class_exists($controllerName)) {
+				throw new CriticalException('Controller ' . $controllerName . ' not found', ErrorCodes::CONTROLLER_NOT_FOUND);
+			}
 
 			try {
-				if (is_a($controller, 'Pair\Core\Controller') and method_exists($controller, $action)) {
-					$controller->$action();
-				}
+				$controller = new $controllerName();
 			} catch (\Exception $e) {
-		
+				throw new CriticalException('Error instantiating controller ' . $controllerName, ErrorCodes::CONTROLLER_NOT_FOUND, $e);
+			}
+
+			if (method_exists($controller, $action)) {
+				try {
+					$controller->$action();
+				} catch (\Exception $e) {
+
+				}
+			} else {
+				Logger::notice('Method ' . $controllerName . '->' . $action . '() not found');
 			}
 
 			// raw calls will jump controller->display, ob and log
@@ -1240,11 +1260,11 @@ class Application {
 				return;
 			}
 
-			// invoke the view
+			// invoke the view and render the page
 			try {
-				$controller->display();
+				$controller->renderView();
 			} catch (\Exception $e) {
-
+				PairException::frontEnd($e->getMessage());
 			}
 
 			$this->logBar = LogBar::getInstance();
